@@ -1,16 +1,12 @@
 import { supabase } from "@/supabase/supabase";
 import { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Pressable,
-  Dimensions,
-} from "react-native";
-import { IconSymbol } from "./ui/IconSymbol";
+import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useLocationStore } from "@/store/useLocation";
+import { Link } from "expo-router";
 
 interface Complejo {
+  id: string | number;
   estrellas: number;
   image_url: string | undefined;
   nombre: any;
@@ -22,13 +18,14 @@ interface Complejo {
 export function ComplejosCarousel() {
   const [data, setData] = useState<Complejo[]>([]);
   const [isLoading, setIsLoading] = useState(true); // Estado para controlar la carga
+  const city = useLocationStore((state) => state.city); // Obtiene la ciudad del store
 
   useEffect(() => {
     const fetchComplejos = async () => {
       setIsLoading(true); // Inicia el estado de carga
       const { data, error } = await supabase
         .from("complejo")
-        .select(`nombre, image_url, direccion, ciudad, pais, estrellas`);
+        .select(`id, nombre, image_url, direccion, ciudad, pais, estrellas`);
       if (error) {
         console.error("Error al cargar complejos:", error.message);
         setIsLoading(false); // Finaliza el estado de carga incluso si hay error
@@ -46,6 +43,22 @@ export function ComplejosCarousel() {
     return b.estrellas - a.estrellas; // Ordena de mayor a menor por estrellas
   });
 
+  const dataFilterdByCity = city
+    ? [...dataSortedByStars].filter((item) => {
+        const normalizedCity = item.ciudad
+          .normalize("NFD") // Normaliza los caracteres con diacríticos
+          .replace(/[\u0300-\u036f]/g, "") // Elimina los diacríticos
+          .toLowerCase(); // Convierte a minúsculas
+
+        const normalizedTargetCity = city
+          ?.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+
+        return normalizedCity === normalizedTargetCity; // Compara las ciudades normalizadas
+      })
+    : dataSortedByStars; // Si no hay city, usa los datos ordenados por estrellas
+
   return (
     <View style={styles.container}>
       {isLoading
@@ -57,11 +70,14 @@ export function ComplejosCarousel() {
               <View style={styles.skeletonText} />
             </View>
           ))
-        : dataSortedByStars.map((item, index) => (
-            <Pressable
+        : dataFilterdByCity.map((item, index) => (
+            <Link
               key={index}
               style={styles.card}
-              onPress={() => alert("Aquí se abrirá el complejo")}
+              href={{
+                pathname: "/detalles/[id]",
+                params: { id: item.id },
+              }}
             >
               <Image
                 source={{ uri: item.image_url }}
@@ -78,13 +94,18 @@ export function ComplejosCarousel() {
                   <Text style={styles.cardSub}>{item.pais}</Text>
                 </View>
                 <View style={styles.starsContainer}>
-                  <IconSymbol size={15} name="star.fill" color={"#FFD700"} />
+                  <IconSymbol
+                    style={{ marginTop: 8 }}
+                    size={15}
+                    name="star.fill"
+                    color={"#FFD700"}
+                  />
                   <Text style={styles.starsText}>
                     {item.estrellas.toFixed(1)}
                   </Text>
                 </View>
               </View>
-            </Pressable>
+            </Link>
           ))}
     </View>
   );
@@ -114,10 +135,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     alignItems: "center",
-    width: screenWidth - 40, // en vez de hardcodear 100% o 380px
+    width: screenWidth, // en vez de hardcodear 100% o 380px
   },
   image: {
-    width: screenWidth - 32, // igual que la card
+    width: screenWidth, // igual que la card
     height: 300,
     borderRadius: 15,
     marginBottom: 8,
@@ -127,7 +148,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between", // Distribuye los elementos a los extremos
     width: screenWidth - 40,
   },
-  textContainer: {},
+  textContainer: { marginTop: 8 }, // Espacio entre la imagen y el texto
   starsContainer: {
     flexDirection: "row", // Coloca el ícono y el número en una fila
   },
@@ -135,6 +156,7 @@ const styles = StyleSheet.create({
     marginLeft: 4, // Espaciado entre el ícono y el número
     fontSize: 14,
     color: "#666",
+    marginTop: 8, // Alinea verticalmente el texto con el ícono
   },
   cardTitle: {
     fontSize: 18,
