@@ -58,8 +58,8 @@ export default function RootLayout() {
           Alert.alert("Error", "No se pudo iniciar sesión con el enlace.");
         } else {
           console.log("✅ Sesión establecida:", data);
-          // Redirige a pantalla principal
-          router.replace("/(tabs)/explore");
+
+          router.replace("/");
         }
       } else {
         console.warn("⚠️ Tokens no encontrados en el link");
@@ -87,6 +87,11 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
         <Stack.Screen name="detalles" options={{ headerShown: false }} />
+        <Stack.Screen name="complejos" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="registro-complejo"
+          options={{ headerShown: false }}
+        />
         <Stack />
       </Stack>
       <StatusBar style="auto" />

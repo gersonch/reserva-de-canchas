@@ -8,15 +8,15 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { makeRedirectUri } from "expo-auth-session";
 import { supabase } from "@/supabase/supabase";
-import { red } from "react-native-reanimated/lib/typescript/Colors";
 import { useAuth } from "@/hooks/useAuth";
+import { Profile } from "./Profile";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>("");
-  const { session } = useAuth(); // Asegúrate de importar el hook de autenticación
+  const { session } = useAuth();
 
   // URI personalizada basada en tu scheme configurado en app.json
   const redirectTo = makeRedirectUri({ scheme: "exp" });
@@ -69,18 +69,7 @@ export default function LoginScreen() {
           </Pressable>
         </View>
       ) : (
-        <View style={styles.container}>
-          <Text style={styles.title}>Bienvenido de nuevo!</Text>
-          <Text style={styles.title}>Ya estás logueado</Text>
-          <Pressable>
-            <Text
-              style={styles.buttonText}
-              onPress={() => supabase.auth.signOut()}
-            >
-              Cerrar sesión
-            </Text>
-          </Pressable>
-        </View>
+        <Profile styles={styles} />
       )}
     </TouchableWithoutFeedback>
   );

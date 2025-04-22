@@ -1,16 +1,11 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import { Link, useLocalSearchParams } from "expo-router";
+import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { CardDetalles } from "./components/cardDetalles";
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabase/supabase";
-import { IconSymbol } from "@/components/ui/IconSymbol"; // Asegúrate de importar el icono
+
 import { useRouter } from "expo-router";
+import { BackButton } from "@/components/BackButton";
 
 interface Item {
   nombre: string;
@@ -59,9 +54,7 @@ export default function DetallesComplejo() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Botón de retroceso */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <IconSymbol size={40} name="arrow.backward.circle.fill" color="#fff" />
-      </TouchableOpacity>
+      <BackButton />
 
       {/* Contenido */}
       {items && <CardDetalles item={items} />}
@@ -73,17 +66,5 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingBottom: 20,
-  },
-  backButton: {
-    position: "absolute",
-    top: 40,
-    left: 15,
-    zIndex: 1,
-    padding: 10,
-    shadowColor: "#000", // Color de la sombra
-    shadowOffset: { width: 0, height: 4 }, // Desplazamiento de la sombra (hacia abajo)
-    shadowOpacity: 0.3, // Opacidad de la sombra
-    shadowRadius: 5, // Radio de la sombra (difusión)
-    elevation: 5, // Sombra en Android
   },
 });

@@ -26,7 +26,7 @@ export default function ReverseGeocodingExample() {
 
       if (address.length > 0) {
         const locationInfo = address[0];
-        setCity(locationInfo.city || locationInfo.region); // puedes mostrar región si no hay city
+        setCity(locationInfo.city || locationInfo.region);
       } else {
         setErrorMsg("No se pudo obtener la ciudad");
       }
