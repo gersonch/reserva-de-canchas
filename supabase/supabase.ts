@@ -1,16 +1,24 @@
 import { createClient } from "@supabase/supabase-js";
-import { supabaseSecureStorageAdapter } from "./supabaseSecureStorageAdapter";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-url-polyfill/auto"; // Necesario en React Native
+import { AppState } from "react-native";
 
-const supabaseUrl = "https://gumxeoeiskcmheomnkcx.supabase.co";
+const supabaseUrl = "https://comqzmlorypjiesbhkao.supabase.co";
 const supabaseAnonKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1bXhlb2Vpc2tjbWhlb21ua2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzOTg5ODQsImV4cCI6MjA1OTk3NDk4NH0.lMFg7824ZmmDacZOBc8jW0u1QPOzcqEtTwCZyXvK7g0";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvbXF6bWxvcnlwamllc2Joa2FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUxOTA4NzMsImV4cCI6MjA2MDc2Njg3M30.b-mc9favzHoXKdnksC-jzos5_qIult448nQsY1bqvLw";
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: supabaseSecureStorageAdapter,
+    storage: AsyncStorage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    detectSessionInUrl: true,
   },
+});
+AppState.addEventListener("change", (state) => {
+  if (state === "active") {
+    supabase.auth.startAutoRefresh();
+  } else {
+    supabase.auth.stopAutoRefresh();
+  }
 });

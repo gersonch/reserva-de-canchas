@@ -1,8 +1,12 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { ComplejosCarousel } from "@/components/ComplejosCarousel";
+import { ComplejosCarousel } from "@/app/(tabs)/(home)/components/ComplejosCarousel";
+import LocationExample from "@/components/Location";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
+  const { session, user } = useAuth();
+  console.log(user?.email);
   return (
     <View style={styles.container}>
       {/* Cabecera con input */}
@@ -18,7 +22,8 @@ export default function Home() {
         </Pressable>
 
         <View style={styles.headerTextContainer}>
-          <Text style={styles.headerText}>Bienvenido a la app</Text>
+          {/* <Text style={styles.headerText}>Bienvenido a la app</Text> */}
+          <LocationExample />
         </View>
       </View>
 
