@@ -1,11 +1,11 @@
-import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { StyleSheet, ScrollView, Text, Pressable } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { CardDetalles } from "./components/cardDetalles";
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabase/supabase";
-
 import { useRouter } from "expo-router";
 import { BackButton } from "@/components/BackButton";
+import { Cancha } from "./Cancha";
 
 interface Item {
   nombre: string;
@@ -25,6 +25,7 @@ export default function DetallesComplejo() {
   const { id } = useLocalSearchParams();
   const [items, setItems] = useState<Item | null>(null);
   const router = useRouter(); // Inicializa el router
+  console.log(id);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,7 +50,7 @@ export default function DetallesComplejo() {
     };
 
     fetchData();
-  }, []);
+  }, [id]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -58,6 +59,10 @@ export default function DetallesComplejo() {
 
       {/* Contenido */}
       {items && <CardDetalles item={items} />}
+      <Pressable>
+        <Text>Reservar aqui</Text>
+      </Pressable>
+      <Cancha complejoId={id} />
     </ScrollView>
   );
 }
@@ -66,5 +71,10 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingBottom: 20,
+  },
+  map: {
+    width: "100%",
+    height: 300,
+    marginTop: 20,
   },
 });

@@ -37,7 +37,6 @@ export function CardDetalles({ item }: { item: Item }) {
         <Text style={styles.text}>
           Dirección: {item.direccion}, {item.ciudad}
         </Text>
-
         {/* Valoración */}
         <View style={styles.rating}>
           <Text style={styles.ratingText}>

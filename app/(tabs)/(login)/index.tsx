@@ -13,6 +13,7 @@ import { makeRedirectUri } from "expo-auth-session";
 import { supabase } from "@/supabase/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { Profile } from "./Profile";
+import Toast from "react-native-toast-message";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>("");
@@ -33,20 +34,32 @@ export default function LoginScreen() {
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {
-        emailRedirectTo: redirectTo, // Asegúrate de que esta ruta esté configurada en tu app
+        emailRedirectTo: redirectTo,
       },
     });
 
     if (error) {
-      console.error("❌ Error al enviar Magic Link:", error.message);
-      Alert.alert("Error", "Ocurrió un error al intentar enviar el enlace.");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error.message,
+        position: "top",
+        topOffset: 100,
+        visibilityTime: 2000,
+        autoHide: true,
+      });
       return;
     }
 
-    Alert.alert(
-      "Correo enviado",
-      "Se ha enviado un enlace de acceso a tu email. Revisa tu bandeja de entrada."
-    );
+    Toast.show({
+      type: "success",
+      text1: "¡Éxito!",
+      text2: "Revisa tu correo para iniciar sesión.",
+      position: "top",
+      topOffset: 100,
+      visibilityTime: 2000,
+      autoHide: true,
+    });
     setEmail("");
   };
 
@@ -55,6 +68,21 @@ export default function LoginScreen() {
       {!session ? (
         <View style={styles.container}>
           <Text style={styles.title}>Inicia sesión</Text>
+          <Pressable
+            onPress={() =>
+              Toast.show({
+                text1: "¡Hola!",
+                text2: "Esto es un toast.",
+                type: "success",
+                position: "bottom",
+                bottomOffset: 200,
+                visibilityTime: 2000,
+                autoHide: true,
+              })
+            }
+          >
+            <Text>Toast</Text>
+          </Pressable>
           <TextInput
             style={styles.input}
             textContentType="emailAddress"
@@ -69,7 +97,7 @@ export default function LoginScreen() {
           </Pressable>
         </View>
       ) : (
-        <Profile styles={styles} />
+        <Profile />
       )}
     </TouchableWithoutFeedback>
   );

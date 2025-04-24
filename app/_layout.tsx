@@ -13,8 +13,9 @@ import { supabase } from "@/supabase/supabase";
 import { Linking } from "react-native";
 import { Alert } from "react-native";
 import { router } from "expo-router";
-
+import Toast from "react-native-toast-message";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { toastConfig } from "@/components/toastConfig";
 
 // Prevenir que el splash screen desaparezca automáticamente
 SplashScreen.preventAutoHideAsync();
@@ -82,19 +83,22 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-        <Stack.Screen name="detalles" options={{ headerShown: false }} />
-        <Stack.Screen name="complejos" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="registro-complejo"
-          options={{ headerShown: false }}
-        />
-        <Stack />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+          <Stack.Screen name="detalles" options={{ headerShown: false }} />
+          <Stack.Screen name="complejos" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="registro-complejo"
+            options={{ headerShown: false }}
+          />
+          <Stack />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+      <Toast config={toastConfig} />
+    </>
   );
 }
