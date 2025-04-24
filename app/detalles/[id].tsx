@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, Text, Pressable } from "react-native";
+import { StyleSheet, ScrollView, Text, Pressable, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { CardDetalles } from "./components/cardDetalles";
 import { useEffect, useState } from "react";
@@ -6,6 +6,7 @@ import { supabase } from "@/supabase/supabase";
 import { useRouter } from "expo-router";
 import { BackButton } from "@/components/BackButton";
 import { Cancha } from "./Cancha";
+import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 
 interface Item {
   nombre: string;
@@ -25,6 +26,7 @@ export default function DetallesComplejo() {
   const { id } = useLocalSearchParams();
   const [items, setItems] = useState<Item | null>(null);
   const router = useRouter(); // Inicializa el router
+  const [loading, setLoading] = useState(true);
   console.log(id);
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function DetallesComplejo() {
       if (error) {
         console.error("Error fetching data:", error);
       }
+      setLoading(false);
     };
 
     fetchData();
@@ -58,11 +61,47 @@ export default function DetallesComplejo() {
       <BackButton />
 
       {/* Contenido */}
-      {items && <CardDetalles item={items} />}
-      <Pressable>
-        <Text>Reservar aqui</Text>
-      </Pressable>
-      <Cancha complejoId={id} />
+      {loading || !items ? (
+        <View style={{ padding: 16 }}>
+          <View
+            style={{
+              height: 200,
+              backgroundColor: "#e0e0e0",
+              borderRadius: 10,
+            }}
+          />
+          <View
+            style={{
+              height: 20,
+              marginTop: 16,
+              backgroundColor: "#e0e0e0",
+              borderRadius: 5,
+            }}
+          />
+          <View
+            style={{
+              height: 20,
+              marginTop: 8,
+              width: "70%",
+              backgroundColor: "#e0e0e0",
+              borderRadius: 5,
+            }}
+          />
+          <View
+            style={{
+              height: 20,
+              marginTop: 8,
+              width: "50%",
+              backgroundColor: "#e0e0e0",
+              borderRadius: 5,
+            }}
+          />
+        </View>
+      ) : (
+        <CardDetalles item={items} />
+      )}
+
+      <Cancha complejoId={Array.isArray(id) ? id[0] : id} />
     </ScrollView>
   );
 }
