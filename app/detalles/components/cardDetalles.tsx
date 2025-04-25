@@ -1,5 +1,6 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import { Linking } from "react-native";
 
 interface Item {
   ciudad: string;
@@ -7,6 +8,7 @@ interface Item {
   estrellas: number;
   nombre: string;
   image_url: string;
+  numero_direccion: number;
   complejo_deportes: {
     deportes: {
       id: number;
@@ -23,9 +25,26 @@ export function CardDetalles({ item }: { item: Item }) {
 
       <View style={styles.textContainer}>
         {/* Título */}
-        <Text style={styles.title}>{item.nombre}</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={styles.title}>{item.nombre}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <IconSymbol size={15} name="star.fill" color={"#FFD700"} />
+            <Text style={styles.ratingText}> {item.estrellas.toFixed(1)}</Text>
+          </View>
+        </View>
 
-        {/* Deporte(s) */}
         <Text style={styles.label}>Deportes:</Text>
         {item.complejo_deportes.map((cd) => (
           <Text style={styles.deporte} key={cd.deportes.id}>
@@ -34,21 +53,39 @@ export function CardDetalles({ item }: { item: Item }) {
         ))}
 
         {/* Dirección */}
-        <Text style={styles.text}>
-          Dirección: {item.direccion}, {item.ciudad}
-        </Text>
-        {/* Valoración */}
-        <View style={styles.rating}>
-          <Text style={styles.ratingText}>
-            <IconSymbol
-              style={{ marginTop: 8 }}
-              size={15}
-              name="star.fill"
-              color={"#FFD700"}
-            />{" "}
-            {item.estrellas.toFixed(1)}
+        <Pressable
+          style={styles.text}
+          onPress={() => {
+            try {
+              const query = encodeURIComponent(
+                `${item.direccion} ${item.numero_direccion}, ${item.ciudad}`
+              );
+              const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+              Linking.openURL(url);
+            } catch (error) {
+              console.error("No se pudo abrir Google Maps:", error);
+            }
+          }}
+        >
+          <Text>
+            Dirección:{" "}
+            <Text
+              style={{
+                color: "#555", // azul moderno
+                textDecorationLine: "underline",
+                fontSize: 14, // o lo que uses para detalles
+                fontWeight: "500",
+              }}
+            >
+              {item.direccion} {item.numero_direccion.toString()}, {item.ciudad}
+            </Text>
           </Text>
-        </View>
+        </Pressable>
+        <Text style={{ marginTop: 10, fontWeight: "bold", fontSize: 20 }}>
+          Reservar
+        </Text>
+
+        <View style={styles.rating}></View>
       </View>
     </View>
   );
@@ -71,7 +108,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 10,
   },
   label: {
     fontWeight: "600",
@@ -95,5 +131,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontSize: 16,
     color: "#444",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

@@ -19,6 +19,7 @@ export function Cancha({ complejoId }: CanchaProps) {
   interface Cancha {
     id: number;
     numero: number;
+    deporte: string;
     horario_disponible?: HorarioDisponible[];
   }
 
@@ -59,6 +60,9 @@ export function Cancha({ complejoId }: CanchaProps) {
 
   const diaSeleccionado = selectedDate.getDay();
 
+  //ordenar las canchas por número [...canchas] crea una copia del array original
+  const sortedCanchas = [...canchas].sort((a, b) => a.numero - b.numero);
+
   const diasFuturos = Array.from({ length: 5 }, (_, i) =>
     addDays(new Date(), i)
   );
@@ -96,7 +100,6 @@ export function Cancha({ complejoId }: CanchaProps) {
                   padding: 10,
                   width: 80,
                   height: 60,
-
                   alignItems: "center",
                   justifyContent: "center",
                   marginRight: 10,
@@ -119,7 +122,7 @@ export function Cancha({ complejoId }: CanchaProps) {
           </ScrollView>
 
           <ScrollView>
-            {canchas.map((cancha) => {
+            {sortedCanchas.map((cancha) => {
               const horarios = cancha.horario_disponible?.filter(
                 (h) => h.dia_semana === diaSeleccionado
               );
@@ -130,41 +133,56 @@ export function Cancha({ complejoId }: CanchaProps) {
                 <View
                   key={cancha.id}
                   style={{
-                    padding: 10,
-                    width: "100%",
+                    padding: 12,
+                    marginVertical: 6,
+                    backgroundColor: "#f9f9f9",
+                    borderRadius: 12,
+                    marginHorizontal: 10,
+                    shadowColor: "#000",
+                    shadowOpacity: 0.1,
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowRadius: 4,
+                    elevation: 2,
                   }}
                 >
                   <TouchableOpacity onPress={() => toggleExpand(cancha.id)}>
-                    <Text
+                    <View
                       style={{
-                        marginBottom: 8,
-                        paddingVertical: 10,
-                        fontSize: 16,
-                        width: "90%",
-                        borderBottomWidth: 1,
-                        borderBottomColor: "rgba(0, 0, 0, 0.2)",
-                        alignSelf: "center",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
                       <View
                         style={{
                           flexDirection: "row",
-                          justifyContent: "space-between",
                           alignItems: "center",
-                          paddingVertical: 10,
-                          width: "100%",
+                          gap: 8,
                         }}
                       >
-                        <Text style={{ fontSize: 16 }}>
-                          Cancha #{cancha.numero}
-                        </Text>
                         <IconSymbol
-                          size={20}
-                          name={isExpanded ? "chevron.down" : "chevron.forward"}
-                          color="black"
+                          size={22}
+                          color={"#4CAF50"}
+                          name={
+                            cancha.deporte === "fútbol"
+                              ? "sportscourt.fill"
+                              : cancha.deporte === "tenis"
+                              ? "tennis.racket"
+                              : "figure.tennis"
+                          }
                         />
+                        <Text style={{ fontSize: 16, fontWeight: "600" }}>
+                          Cancha #{cancha.numero} -{" "}
+                          {cancha.deporte.charAt(0).toUpperCase() +
+                            cancha.deporte.substring(1)}
+                        </Text>
                       </View>
-                    </Text>
+                      <IconSymbol
+                        size={20}
+                        name={isExpanded ? "chevron.down" : "chevron.forward"}
+                        color="#4CAF50"
+                      />
+                    </View>
                   </TouchableOpacity>
 
                   {isExpanded &&
@@ -174,24 +192,21 @@ export function Cancha({ complejoId }: CanchaProps) {
                           flexDirection: "row",
                           flexWrap: "wrap",
                           gap: 8,
-                          alignSelf: "center",
-                          alignItems: "center",
-                          justifyContent: "center",
+                          marginTop: 12,
+                          justifyContent: "flex-start",
                         }}
                       >
                         {horarios.map((horario) => (
                           <TouchableOpacity
                             key={horario.id}
                             style={{
-                              backgroundColor: "#ccc",
+                              backgroundColor: "#4CAF50",
                               borderRadius: 8,
-                              paddingVertical: 6,
+                              paddingVertical: 14,
                               paddingHorizontal: 12,
-                              marginRight: 6,
-                              marginBottom: 6,
                             }}
                           >
-                            <Text>
+                            <Text style={{ color: "white", fontWeight: "500" }}>
                               {horario.hora_inicio.substring(0, 5)} -{" "}
                               {horario.hora_fin.substring(0, 5)}
                             </Text>
@@ -199,7 +214,14 @@ export function Cancha({ complejoId }: CanchaProps) {
                         ))}
                       </View>
                     ) : (
-                      <Text style={{ marginTop: 4 }}>
+                      <Text
+                        style={{
+                          marginTop: 8,
+                          fontStyle: "italic",
+                          color: "#888",
+                          textAlign: "center",
+                        }}
+                      >
                         No hay horarios disponibles
                       </Text>
                     ))}

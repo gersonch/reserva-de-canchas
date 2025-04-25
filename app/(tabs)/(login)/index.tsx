@@ -68,21 +68,7 @@ export default function LoginScreen() {
       {!session ? (
         <View style={styles.container}>
           <Text style={styles.title}>Inicia sesión</Text>
-          <Pressable
-            onPress={() =>
-              Toast.show({
-                text1: "¡Hola!",
-                text2: "Esto es un toast.",
-                type: "success",
-                position: "bottom",
-                bottomOffset: 200,
-                visibilityTime: 2000,
-                autoHide: true,
-              })
-            }
-          >
-            <Text>Toast</Text>
-          </Pressable>
+
           <TextInput
             style={styles.input}
             textContentType="emailAddress"

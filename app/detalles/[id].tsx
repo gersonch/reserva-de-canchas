@@ -6,7 +6,7 @@ import { supabase } from "@/supabase/supabase";
 import { useRouter } from "expo-router";
 import { BackButton } from "@/components/BackButton";
 import { Cancha } from "./Cancha";
-import SkeletonPlaceholder from "react-native-skeleton-placeholder";
+import { Calificar } from "./Calificar";
 
 interface Item {
   nombre: string;
@@ -14,6 +14,7 @@ interface Item {
   ciudad: string;
   direccion: string;
   estrellas: number;
+  numero_direccion: number;
   complejo_deportes: {
     deportes: {
       id: number;
@@ -102,6 +103,7 @@ export default function DetallesComplejo() {
       )}
 
       <Cancha complejoId={Array.isArray(id) ? id[0] : id} />
+      <Calificar />
     </ScrollView>
   );
 }
