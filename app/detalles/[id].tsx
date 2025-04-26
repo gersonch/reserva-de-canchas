@@ -28,7 +28,6 @@ export default function DetallesComplejo() {
   const [items, setItems] = useState<Item | null>(null);
   const router = useRouter(); // Inicializa el router
   const [loading, setLoading] = useState(true);
-  console.log(id);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,7 +102,7 @@ export default function DetallesComplejo() {
       )}
 
       <Cancha complejoId={Array.isArray(id) ? id[0] : id} />
-      <Calificar />
+      <Calificar complejoId={Array.isArray(id) ? id[0] : id} />
     </ScrollView>
   );
 }

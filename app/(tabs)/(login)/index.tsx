@@ -29,7 +29,6 @@ export default function LoginScreen() {
     }
 
     console.log("📧 Enviando Magic Link a:", email);
-    console.log("🔗 Redirect URI:", redirectTo);
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email,

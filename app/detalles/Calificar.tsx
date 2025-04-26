@@ -1,18 +1,54 @@
 import { Pressable, Text, View, StyleSheet } from "react-native";
 import { useState } from "react";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { supabase } from "@/supabase/supabase";
+import { useAuth } from "@/hooks/useAuth";
 
-export function Calificar() {
+export function Calificar({ complejoId }: { complejoId: string }) {
+  const { user } = useAuth();
+  const userId = user?.id;
   const [calificacion, setCalificacion] = useState(0);
   const starButtonArray = new Array(5).fill(false);
+  async function toggleCalificacion(
+    index: number,
+    current: number,
+    setCalificacion: (value: number) => void,
+    userId: string,
+    complejoId: string
+  ) {
+    const nuevaCalificacion = current === index + 1 ? 0 : index + 1;
 
-  const toggleCalificacion = (index: number) => {
-    if (calificacion === index + 1) {
-      // Si la estrella ya está seleccionada, desactívala
-      setCalificacion(0);
+    setCalificacion(nuevaCalificacion);
+
+    if (nuevaCalificacion === 0) return; // Si se deselecciona, no guardar
+
+    const { data, error } = await supabase.from("calificaciones").upsert(
+      {
+        user_id: userId,
+        complejo_id: complejoId,
+        calificacion: nuevaCalificacion,
+      },
+      { onConflict: "user_id,complejo_id" }
+    ); // previene duplicados del mismo user-complejo
+
+    if (error) {
+      console.error("Error guardando calificación:", error);
     } else {
-      // Si no está seleccionada, actívala
-      setCalificacion(index + 1);
+      console.log("Calificación guardada:", data);
+    }
+  }
+
+  const handleCalificacion = (index: number) => {
+    if (userId) {
+      toggleCalificacion(
+        index,
+        calificacion,
+        setCalificacion,
+        userId,
+        complejoId
+      );
+    } else {
+      console.error("User ID is undefined. Cannot save rating.");
     }
   };
 
@@ -23,7 +59,7 @@ export function Calificar() {
         {starButtonArray.map((_, index) => (
           <Pressable
             key={index}
-            onPress={() => toggleCalificacion(index)}
+            onPress={() => handleCalificacion(index)}
             style={({ pressed }) => [
               styles.starButton,
               pressed && styles.starButtonPressed,
@@ -32,7 +68,7 @@ export function Calificar() {
             <IconSymbol
               name={index < calificacion ? "star.fill" : "star"}
               size={40}
-              color={index < calificacion ? "#FFD700" : "#ccc"} // Estrella dorada si está seleccionada
+              color={index < calificacion ? "#FFD700" : "#ccc"}
             />
           </Pressable>
         ))}
@@ -62,6 +98,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   starButtonPressed: {
-    opacity: 0.7, // Efecto visual al presionar
+    opacity: 0.7,
   },
 });

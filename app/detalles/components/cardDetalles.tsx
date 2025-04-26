@@ -41,7 +41,12 @@ export function CardDetalles({ item }: { item: Item }) {
             }}
           >
             <IconSymbol size={15} name="star.fill" color={"#FFD700"} />
-            <Text style={styles.ratingText}> {item.estrellas.toFixed(1)}</Text>
+            <Text style={styles.ratingText}>
+              {" "}
+              {item.estrellas === null
+                ? "No calificado"
+                : item.estrellas.toFixed(1)}
+            </Text>
           </View>
         </View>
 

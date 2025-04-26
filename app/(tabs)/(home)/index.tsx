@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
   const { session, user } = useAuth();
-  console.log(user?.email);
+
   return (
     <View style={styles.container}>
       {/* Cabecera con input */}

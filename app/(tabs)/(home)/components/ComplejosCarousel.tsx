@@ -101,7 +101,9 @@ export function ComplejosCarousel() {
                     color={"#FFD700"}
                   />
                   <Text style={styles.starsText}>
-                    {item.estrellas.toFixed(1)}
+                    {item.estrellas === null
+                      ? "n.n"
+                      : item.estrellas.toFixed(1)}
                   </Text>
                 </View>
               </View>

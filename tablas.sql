@@ -71,3 +71,7 @@ create table public.reserva (
   constraint reserva_cancha_reservada_id_fkey foreign KEY (cancha_reservada_id) references cancha_reservada (id) on delete CASCADE,
   constraint reserva_cliente_id_fkey foreign KEY (cliente_id) references cliente (id) on delete CASCADE
 ) TABLESPACE pg_default;
+
+
+
+

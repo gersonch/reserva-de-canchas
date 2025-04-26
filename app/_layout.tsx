@@ -36,11 +36,8 @@ export default function RootLayout() {
   // Manejo de Magic Link
   useEffect(() => {
     const handleDeepLink = async (event: { url: string }) => {
-      console.log("🔗 Deep link recibido:", event.url);
-
       const hash = event.url.split("#")[1];
       if (!hash) {
-        console.warn("⚠️ No hay fragmento con tokens");
         return;
       }
 
@@ -58,8 +55,6 @@ export default function RootLayout() {
           console.error("❌ Error al establecer sesión:", error.message);
           Alert.alert("Error", "No se pudo iniciar sesión con el enlace.");
         } else {
-          console.log("✅ Sesión establecida:", data);
-
           router.replace("/");
         }
       } else {

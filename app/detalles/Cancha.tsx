@@ -1,14 +1,23 @@
-import { ScrollView, View, Text, TouchableOpacity } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { useState, useEffect } from "react";
 import { supabase } from "@/supabase/supabase";
 import { format, addDays } from "date-fns";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CanchaProps {
   complejoId: string;
 }
 
 export function Cancha({ complejoId }: CanchaProps) {
+  const { user } = useAuth();
+
   interface HorarioDisponible {
     id: number;
     dia_semana: number;
@@ -25,8 +34,16 @@ export function Cancha({ complejoId }: CanchaProps) {
 
   const [canchas, setCanchas] = useState<Cancha[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [expandedCanchaIds, setExpandedCanchaIds] = useState<number[]>([]); // 🆕
+  const [expandedCanchaIds, setExpandedCanchaIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reservas, setReservas] = useState<
+    {
+      cancha_id: number;
+      fecha: string;
+      hora_inicio: string;
+      hora_fin: string;
+    }[]
+  >([]);
 
   useEffect(() => {
     if (complejoId) {
@@ -41,12 +58,45 @@ export function Cancha({ complejoId }: CanchaProps) {
         } else {
           setCanchas(data || []);
         }
+        setLoading(false);
       };
 
       fetchData();
-      setLoading(false);
     }
   }, [complejoId]);
+
+  useEffect(() => {
+    const fetchReservas = async () => {
+      const fechaISO = format(selectedDate, "yyyy-MM-dd");
+      const { data, error } = await supabase
+        .from("reserva")
+        .select("cancha_id, fecha, hora_inicio, hora_fin")
+        .eq("fecha", fechaISO);
+
+      if (error) {
+        console.error("Error al obtener reservas:", error);
+      } else {
+        setReservas(data || []);
+      }
+    };
+
+    fetchReservas();
+  }, [selectedDate]);
+
+  function estaReservado(
+    canchaId: number,
+    horaInicio: string,
+    horaFin: string
+  ): boolean {
+    const fechaISO = format(selectedDate, "yyyy-MM-dd");
+    return reservas.some(
+      (reserva) =>
+        reserva.cancha_id === canchaId &&
+        reserva.fecha === fechaISO &&
+        reserva.hora_inicio === horaInicio &&
+        reserva.hora_fin === horaFin
+    );
+  }
 
   const diasSemana = [
     "Domingo",
@@ -59,10 +109,7 @@ export function Cancha({ complejoId }: CanchaProps) {
   ];
 
   const diaSeleccionado = selectedDate.getDay();
-
-  //ordenar las canchas por número [...canchas] crea una copia del array original
   const sortedCanchas = [...canchas].sort((a, b) => a.numero - b.numero);
-
   const diasFuturos = Array.from({ length: 5 }, (_, i) =>
     addDays(new Date(), i)
   );
@@ -76,8 +123,7 @@ export function Cancha({ complejoId }: CanchaProps) {
   };
 
   return (
-    <View style={{}}>
-      {/* Selector de días */}
+    <View>
       {loading ? (
         <Text>Cargando...</Text>
       ) : (
@@ -196,22 +242,46 @@ export function Cancha({ complejoId }: CanchaProps) {
                           justifyContent: "flex-start",
                         }}
                       >
-                        {horarios.map((horario) => (
-                          <TouchableOpacity
-                            key={horario.id}
-                            style={{
-                              backgroundColor: "#4CAF50",
-                              borderRadius: 8,
-                              paddingVertical: 14,
-                              paddingHorizontal: 12,
-                            }}
-                          >
-                            <Text style={{ color: "white", fontWeight: "500" }}>
-                              {horario.hora_inicio.substring(0, 5)} -{" "}
-                              {horario.hora_fin.substring(0, 5)}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
+                        {horarios.map((horario) => {
+                          const isDisabled = estaReservado(
+                            cancha.id,
+                            horario.hora_inicio,
+                            horario.hora_fin
+                          );
+
+                          return (
+                            <TouchableOpacity
+                              key={horario.id}
+                              disabled={isDisabled}
+                              style={{
+                                backgroundColor: isDisabled
+                                  ? "#e0e0e0"
+                                  : "#4CAF50",
+                                borderColor: isDisabled ? "#aaa" : "#388e3c",
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                paddingVertical: 14,
+                                paddingHorizontal: 12,
+                                opacity: isDisabled ? 1 : 1, // mantenemos 1 para que se vea bien
+                              }}
+                            >
+                              <Pressable>
+                                <Text
+                                  style={{
+                                    color: isDisabled ? "#888" : "#fff",
+                                    fontWeight: "500",
+                                    textDecorationLine: isDisabled
+                                      ? "line-through"
+                                      : "none",
+                                  }}
+                                >
+                                  {horario.hora_inicio.substring(0, 5)} -{" "}
+                                  {horario.hora_fin.substring(0, 5)}
+                                </Text>
+                              </Pressable>
+                            </TouchableOpacity>
+                          );
+                        })}
                       </View>
                     ) : (
                       <Text
