@@ -1,14 +1,21 @@
 import { Pressable, Text, View, StyleSheet } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { supabase } from "@/supabase/supabase";
 import { useAuth } from "@/hooks/useAuth";
 
 export function Calificar({ complejoId }: { complejoId: string }) {
-  const { user } = useAuth();
-  const userId = user?.id;
+  const { session, user } = useAuth();
+  const userId = session?.user.id;
   const [calificacion, setCalificacion] = useState(0);
   const starButtonArray = new Array(5).fill(false);
+  useEffect(() => {
+    const debug = async () => {
+      console.log(session?.user.id);
+    };
+    debug();
+  }, []);
+
   async function toggleCalificacion(
     index: number,
     current: number,
@@ -20,16 +27,20 @@ export function Calificar({ complejoId }: { complejoId: string }) {
 
     setCalificacion(nuevaCalificacion);
 
-    if (nuevaCalificacion === 0) return; // Si se deselecciona, no guardar
+    if (nuevaCalificacion === 0) return; // No guardar si se deselecciona
 
     const { data, error } = await supabase.from("calificaciones").upsert(
+      [
+        {
+          user_id: userId,
+          complejo_id: complejoId,
+          calificacion: nuevaCalificacion,
+        },
+      ],
       {
-        user_id: userId,
-        complejo_id: complejoId,
-        calificacion: nuevaCalificacion,
-      },
-      { onConflict: "user_id,complejo_id" }
-    ); // previene duplicados del mismo user-complejo
+        onConflict: "user_id,complejo_id",
+      }
+    );
 
     if (error) {
       console.error("Error guardando calificación:", error);

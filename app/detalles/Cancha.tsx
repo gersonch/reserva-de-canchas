@@ -144,7 +144,7 @@ export function Cancha({ complejoId }: CanchaProps) {
                       : "#e0e0e0",
                   borderRadius: 10,
                   padding: 10,
-                  width: 80,
+                  width: 90,
                   height: 60,
                   alignItems: "center",
                   justifyContent: "center",
